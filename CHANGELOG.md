@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+ - Fixed a miscompilation of default parameter initialisers that referenced a name shadowed by a binding in the function body.  Parameter expressions resolve in a separate parameters environment, so such references now keep binding to the parameter or the outer variable instead of the body binding (this could silently change the result or produce a `ReferenceError`).
+
 ## v5.50.0
 
 - Experimental TypeScript type stripping
