@@ -242,3 +242,174 @@ accept_destructuring_async_word_with_default: {
     }
     expect_stdout: "PASS"
 }
+
+issue_default_param_shadowed_by_body_var: {
+    mangle = { }
+    input: {
+        function f(a, g = () => a) {
+            var a = 42;
+            return g();
+        }
+        console.log(f(1));
+    }
+    expect_stdout: "1"
+}
+
+issue_default_param_shadowed_by_body_var_value: {
+    mangle = { }
+    input: {
+        function f(a, b = a) {
+            var a = 42;
+            return b;
+        }
+        console.log(f(99));
+    }
+    expect_stdout: "99"
+}
+
+issue_default_param_shadowed_by_body_function: {
+    mangle = { }
+    input: {
+        function f(a, g = () => a) {
+            function a() {
+                return 5;
+            }
+            return g();
+        }
+        console.log(f(1));
+    }
+    expect_stdout: "1"
+}
+
+issue_default_param_nested_arrow: {
+    mangle = { }
+    input: {
+        function f(a, g = (() => () => a)()) {
+            var a = 42;
+            return g();
+        }
+        console.log(f(1));
+    }
+    expect_stdout: "1"
+}
+
+issue_default_param_refs_outer_const: {
+    mangle = { }
+    input: {
+        const g = () => 7;
+        function f(a, x = g()) {
+            const g = 1;
+            return x;
+        }
+        console.log(f(1));
+    }
+    expect_stdout: "7"
+}
+
+issue_default_param_refs_outer_var: {
+    mangle = { }
+    input: {
+        var g = () => 7;
+        function f(a, x = g()) {
+            var g = 1;
+            return x;
+        }
+        console.log(f(1));
+    }
+    expect_stdout: "7"
+}
+
+issue_default_param_refs_outer_function_declaration: {
+    mangle = { }
+    input: {
+        function g() {
+            return 7;
+        }
+        function f(a, x = g()) {
+            function g() {
+                return 1;
+            }
+            return x;
+        }
+        console.log(f(1));
+    }
+    expect_stdout: "7"
+}
+
+issue_default_param_body_binding_still_usable: {
+    mangle = { }
+    input: {
+        function f(a, g = () => a) {
+            var a = 1;
+            return (() => a)() + g();
+        }
+        console.log(f(100));
+    }
+    expect_stdout: "101"
+}
+
+issue_default_param_shadowing_multiple_params: {
+    mangle = { }
+    input: {
+        function f(a, b, g = () => [a, b].join(",")) {
+            var a = 1;
+            var b = 2;
+            return g();
+        }
+        console.log(f(10, 20));
+    }
+    expect_stdout: "10,20"
+}
+
+issue_default_param_arrow_function_form: {
+    mangle = { }
+    input: {
+        var g = () => 7;
+        var f = (a, x = g()) => {
+            var g = 1;
+            return x;
+        };
+        console.log(f(1));
+    }
+    expect_stdout: "7"
+}
+
+issue_default_param_refs_outer_class: {
+    mangle = { }
+    input: {
+        var G = 7;
+        function f(a, x = G) {
+            class G {}
+            return x;
+        }
+        console.log(f(1));
+    }
+    expect_stdout: "7"
+}
+
+issue_default_param_nested_destructuring_default: {
+    mangle = { }
+    input: {
+        function f([a], { b = a } = {}) {
+            var a = 8;
+            return b;
+        }
+        console.log(f([3]));
+    }
+    expect_stdout: "3"
+}
+
+issue_default_param_nested_function_body_shadow: {
+    mangle = { }
+    input: {
+        function outer(p, make = (a, g = () => p) => {
+            var p = 9;
+            return g();
+        }) {
+            var p = 99;
+            return make(5);
+        }
+        console.log(outer(1));
+    }
+    expect_stdout: "1"
+}
